@@ -1,0 +1,6 @@
+{
+  "name": "Dibor & Gnilane Food",
+  "description": "Plateforme gastronomique sénégalaise : commande en ligne, paiement sécurisé, espace membre, gestion des créneaux et tableau de bord administrateur complet.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
