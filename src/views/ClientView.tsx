@@ -5,6 +5,7 @@ import { Product, ProductCategory, PlaceOption } from '../types/index.ts';
 import { PLACES } from '../data/initialCatalog.ts';
 import { formatEuro, formatDateFrench, formatShortDay, getUpcomingDays } from '../utils/format.ts';
 import { DishModal } from '../components/menu/DishModal.tsx';
+import { PWAInstallButton } from '../components/pwa/PWAInstallButton.tsx';
 import {
   MapPin,
   Clock,
@@ -312,6 +313,9 @@ export const ClientView: React.FC<ClientViewProps> = ({
             </button>
           </div>
         </div>
+
+        {/* PWA Mobile Installation Callout */}
+        <PWAInstallButton variant="banner" className="mb-8" />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Ordering Stepper & Menu */}

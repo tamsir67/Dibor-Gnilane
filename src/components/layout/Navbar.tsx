@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext.tsx';
 import { useCart } from '../../context/CartContext.tsx';
 import { ShoppingBag, UserCheck, Shield, ChefHat, Bike, ChevronDown, Sparkles, Utensils, Clock } from 'lucide-react';
 import { formatEuro } from '../../utils/format.ts';
+import { PWAInstallButton } from '../pwa/PWAInstallButton.tsx';
 
 interface NavbarProps {
   currentTab: string;
@@ -120,8 +121,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onTabChange, onOpenC
             </button>
           </nav>
 
-          {/* Zone 3: Customer Identification + Role Switcher + Shopping Bag */}
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          {/* Zone 3: PWA Install + Customer Identification + Role Switcher + Shopping Bag */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            {/* PWA Install Button (Android 1-click & iOS Safari prompt) */}
+            <PWAInstallButton variant="nav" />
+
             {/* Customer Identification Button */}
             <button
               onClick={onOpenAuth}

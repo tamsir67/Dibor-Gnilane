@@ -13,6 +13,7 @@ import { DeliveryView } from './views/DeliveryView.tsx';
 import { DeliveryTrackingView } from './views/DeliveryTrackingView.tsx';
 import { CateringView } from './views/CateringView.tsx';
 import { AuthModal } from './components/auth/AuthModal.tsx';
+import { OfflineIndicator } from './components/pwa/OfflineIndicator.tsx';
 import { Order } from './types/index.ts';
 import { BrandLogo } from './assets/logo.tsx';
 
@@ -86,6 +87,9 @@ function MainApp() {
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
       />
+
+      {/* Network Offline Status Indicator */}
+      <OfflineIndicator />
 
       {/* Main View Body */}
       <main className="flex-1">
