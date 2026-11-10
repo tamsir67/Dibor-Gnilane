@@ -201,72 +201,72 @@ export const DeliveryTrackingView: React.FC<DeliveryTrackingViewProps> = ({
                 </div>
               </div>
 
-              {/* Progress Stepper (5 steps) */}
+              {/* Progress Stepper (5 steps) with responsive scaling */}
               <div className="py-2">
-                <div className="grid grid-cols-5 gap-2 text-center relative">
+                <div className="grid grid-cols-5 gap-1 sm:gap-2 text-center relative">
                   {/* Step 1: Confirmée */}
-                  <div className="space-y-2">
-                    <div className={`w-10 h-10 mx-auto rounded-2xl flex items-center justify-center font-bold text-xs transition-all ${
+                  <div className="space-y-1 sm:space-y-2">
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 mx-auto rounded-xl sm:rounded-2xl flex items-center justify-center font-bold text-xs transition-all ${
                       currentStep >= 1 ? 'bg-[#1f6b42] text-white shadow-xs' : 'bg-[#f0e8df] text-[#8c6b5d]'
                     }`}>
-                      <CheckCircle2 className="w-5 h-5" />
+                      <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
-                    <span className="block text-[11px] font-bold text-[#2e1810] leading-tight">
+                    <span className="block text-[10px] sm:text-[11px] font-bold text-[#2e1810] leading-tight truncate">
                       Confirmée
                     </span>
-                    <span className="block text-[10px] text-[#8c6b5d]">Paiement OK</span>
+                    <span className="hidden sm:block text-[10px] text-[#8c6b5d]">Paiement OK</span>
                   </div>
 
                   {/* Step 2: En Cuisine */}
-                  <div className="space-y-2">
-                    <div className={`w-10 h-10 mx-auto rounded-2xl flex items-center justify-center font-bold text-xs transition-all ${
+                  <div className="space-y-1 sm:space-y-2">
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 mx-auto rounded-xl sm:rounded-2xl flex items-center justify-center font-bold text-xs transition-all ${
                       currentStep >= 2 ? 'bg-[#d4652a] text-white shadow-xs animate-pulse' : 'bg-[#f0e8df] text-[#8c6b5d]'
                     }`}>
-                      <ChefHat className="w-5 h-5" />
+                      <ChefHat className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
-                    <span className="block text-[11px] font-bold text-[#2e1810] leading-tight">
+                    <span className="block text-[10px] sm:text-[11px] font-bold text-[#2e1810] leading-tight truncate">
                       En cuisine
                     </span>
-                    <span className="block text-[10px] text-[#8c6b5d]">Mijotage</span>
+                    <span className="hidden sm:block text-[10px] text-[#8c6b5d]">Mijotage</span>
                   </div>
 
                   {/* Step 3: Prête */}
-                  <div className="space-y-2">
-                    <div className={`w-10 h-10 mx-auto rounded-2xl flex items-center justify-center font-bold text-xs transition-all ${
+                  <div className="space-y-1 sm:space-y-2">
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 mx-auto rounded-xl sm:rounded-2xl flex items-center justify-center font-bold text-xs transition-all ${
                       currentStep >= 3 ? 'bg-[#e3a72f] text-[#2e1810] shadow-xs' : 'bg-[#f0e8df] text-[#8c6b5d]'
                     }`}>
-                      <PackageCheck className="w-5 h-5" />
+                      <PackageCheck className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
-                    <span className="block text-[11px] font-bold text-[#2e1810] leading-tight">
+                    <span className="block text-[10px] sm:text-[11px] font-bold text-[#2e1810] leading-tight truncate">
                       Prête
                     </span>
-                    <span className="block text-[10px] text-[#8c6b5d]">Sous cloche</span>
+                    <span className="hidden sm:block text-[10px] text-[#8c6b5d]">Sous cloche</span>
                   </div>
 
                   {/* Step 4: En livraison */}
-                  <div className="space-y-2">
-                    <div className={`w-10 h-10 mx-auto rounded-2xl flex items-center justify-center font-bold text-xs transition-all ${
+                  <div className="space-y-1 sm:space-y-2">
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 mx-auto rounded-xl sm:rounded-2xl flex items-center justify-center font-bold text-xs transition-all ${
                       currentStep >= 4 ? 'bg-[#1da1f2] text-white shadow-xs animate-bounce' : 'bg-[#f0e8df] text-[#8c6b5d]'
                     }`}>
-                      <Bike className="w-5 h-5" />
+                      <Bike className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
-                    <span className="block text-[11px] font-bold text-[#2e1810] leading-tight">
+                    <span className="block text-[10px] sm:text-[11px] font-bold text-[#2e1810] leading-tight truncate">
                       En route
                     </span>
-                    <span className="block text-[10px] text-[#8c6b5d]">Livreur</span>
+                    <span className="hidden sm:block text-[10px] text-[#8c6b5d]">Livreur</span>
                   </div>
 
                   {/* Step 5: Livrée */}
-                  <div className="space-y-2">
-                    <div className={`w-10 h-10 mx-auto rounded-2xl flex items-center justify-center font-bold text-xs transition-all ${
+                  <div className="space-y-1 sm:space-y-2">
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 mx-auto rounded-xl sm:rounded-2xl flex items-center justify-center font-bold text-xs transition-all ${
                       currentStep >= 5 ? 'bg-emerald-600 text-white shadow-xs' : 'bg-[#f0e8df] text-[#8c6b5d]'
                     }`}>
-                      <ShieldCheck className="w-5 h-5" />
+                      <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
-                    <span className="block text-[11px] font-bold text-[#2e1810] leading-tight">
+                    <span className="block text-[10px] sm:text-[11px] font-bold text-[#2e1810] leading-tight truncate">
                       Remise
                     </span>
-                    <span className="block text-[10px] text-[#8c6b5d]">Dégustation</span>
+                    <span className="hidden sm:block text-[10px] text-[#8c6b5d]">Dégustation</span>
                   </div>
                 </div>
               </div>

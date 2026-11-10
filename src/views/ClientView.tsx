@@ -186,10 +186,10 @@ export const ClientView: React.FC<ClientViewProps> = ({
   });
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-32 sm:pb-24">
       {/* Toast notification */}
       {addedToast && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-[#2e1810] text-[#f7ece1] px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 border border-[#e3a72f]/40 animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-24 sm:bottom-20 left-1/2 -translate-x-1/2 z-50 bg-[#2e1810] text-[#f7ece1] px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 border border-[#e3a72f]/40 animate-in fade-in slide-in-from-bottom-3 duration-200">
           <Check className="w-4 h-4 text-[#e3a72f]" />
           <span className="text-xs font-semibold">{addedToast}</span>
         </div>
@@ -204,44 +204,44 @@ export const ClientView: React.FC<ClientViewProps> = ({
             className="w-full h-full object-cover"
           />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-20">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-3.5 bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/15 mb-4 shadow-sm">
+            <div className="inline-flex items-center gap-3.5 bg-white/10 backdrop-blur-md px-3.5 sm:px-4 py-2 rounded-2xl border border-white/15 mb-4 shadow-sm">
               <img
                 src="/assets/aistudio/image_b012f474.png"
                 alt="Logo Dibor & Gnilane"
-                className="w-11 h-11 sm:w-13 sm:h-13 object-contain rounded-xl bg-white p-1 shadow-xs"
+                className="w-10 h-10 sm:w-13 sm:h-13 object-contain rounded-xl bg-white p-1 shadow-xs shrink-0"
               />
-              <div>
-                <span className="text-xs font-black uppercase tracking-wider text-[#e3a72f] block leading-tight">
+              <div className="min-w-0">
+                <span className="text-xs font-black uppercase tracking-wider text-[#e3a72f] block leading-tight truncate">
                   Dibor &amp; Gnilane Food
                 </span>
-                <span className="text-[11px] text-[#f7ece1] block">
-                  Restaurant &amp; Traiteur Sénégalais · 2G av. des Étangs, La Celle-Saint-Cloud
+                <span className="text-[10px] sm:text-[11px] text-[#f7ece1] block truncate">
+                  Restaurant &amp; Traiteur Sénégalais · 2G av. des Étangs
                 </span>
               </div>
             </div>
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-display leading-[1.08] text-white tracking-tight">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold font-display leading-[1.12] text-white tracking-tight text-balance">
               Le goût de l’Afrique, <br />
               <span className="text-[#e3a72f]">livré à l’heure.</span>
             </h1>
-            <p className="mt-4 text-base sm:text-lg text-[#deb8a0] leading-relaxed">
+            <p className="mt-3 sm:mt-4 text-sm sm:text-base lg:text-lg text-[#deb8a0] leading-relaxed">
               Recettes ancestrales cuisinées chaque matin avec des ingrédients frais. Poulet mariné au citron vert, sauces arachides fondantes et beignets dorés.
             </p>
 
             {/* 3 Trust Markers */}
-            <div className="mt-8 flex flex-wrap items-center gap-6 text-xs text-[#ebd7c8]">
+            <div className="mt-6 sm:mt-8 flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-[#ebd7c8]">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#1f6b42]" />
-                <span className="font-semibold">Viandes 100% Halal certifiées</span>
+                <span className="font-semibold">Viandes 100% Halal</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#e3a72f]" />
-                <span className="font-semibold">Fait maison &amp; produits frais</span>
+                <span className="font-semibold">Fait maison &amp; frais</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#d4652a]" />
-                <span className="font-semibold">Livraison respectant la chaîne du chaud</span>
+                <span className="font-semibold">Chaîne du chaud garantie</span>
               </div>
             </div>
           </div>
@@ -249,17 +249,17 @@ export const ClientView: React.FC<ClientViewProps> = ({
       </section>
 
       {/* Main Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
         {/* Quick Top Access Banners: Identification & Delivery Tracking */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           {/* Card 1: Customer Identification & Loyalty status */}
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#e8ded1] shadow-xs flex items-center justify-between gap-4">
+          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#e8ded1] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             <div className="flex items-center gap-3.5">
               <div className="w-11 h-11 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 flex items-center justify-center shrink-0">
                 <UserCheck className="w-5 h-5 text-[#d4652a]" />
               </div>
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-bold text-sm text-[#2e1810]">
                     {currentUser ? `Bonjour, ${currentUser.name}` : 'Espace Client Teranga'}
                   </span>
@@ -280,14 +280,14 @@ export const ClientView: React.FC<ClientViewProps> = ({
             <button
               type="button"
               onClick={onOpenAuth}
-              className="px-3.5 py-2 rounded-xl bg-[#2e1810] hover:bg-[#432317] text-[#f7ece1] text-xs font-bold shrink-0 transition-all shadow-xs cursor-pointer"
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#2e1810] hover:bg-[#432317] text-[#f7ece1] text-xs font-bold shrink-0 transition-all shadow-xs cursor-pointer text-center min-h-[40px] flex items-center justify-center"
             >
               {currentUser ? 'Changer de compte' : "S'identifier"}
             </button>
           </div>
 
           {/* Card 2: Real-time Delivery Tracking Banner */}
-          <div className="bg-gradient-to-r from-[#fdfaf6] to-[#f8f1e7] rounded-2xl p-4 sm:p-5 border border-[#e8ded1] shadow-xs flex items-center justify-between gap-4">
+          <div className="bg-gradient-to-r from-[#fdfaf6] to-[#f8f1e7] rounded-2xl p-4 sm:p-5 border border-[#e8ded1] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             <div className="flex items-center gap-3.5">
               <div className="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-center shrink-0">
                 <Bike className="w-5 h-5 text-emerald-600 animate-pulse" />
@@ -297,7 +297,7 @@ export const ClientView: React.FC<ClientViewProps> = ({
                   Suivre ma commande en direct
                 </span>
                 <p className="text-xs text-[#8c6b5d] mt-0.5">
-                  Cuisine, départ du livreur et code secret de remise à 4 chiffres.
+                  Cuisine, départ du livreur et code secret de remise.
                 </p>
               </div>
             </div>
@@ -305,7 +305,7 @@ export const ClientView: React.FC<ClientViewProps> = ({
             <button
               type="button"
               onClick={() => onNavigateToTracking && onNavigateToTracking()}
-              className="px-3.5 py-2 rounded-xl bg-[#1f6b42] hover:bg-[#185534] text-white text-xs font-bold shrink-0 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#1f6b42] hover:bg-[#185534] text-white text-xs font-bold shrink-0 transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer min-h-[40px]"
             >
               <span>Suivre</span>
               <ArrowRight className="w-3.5 h-3.5" />

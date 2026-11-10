@@ -57,12 +57,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         onClick={onClose}
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col border-l border-[#e8ded1]">
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
+        <div className="w-screen max-w-full sm:max-w-md bg-white shadow-2xl flex flex-col border-l border-[#e8ded1]">
           {/* Header */}
-          <div className="p-5 border-b border-[#f0e8df] bg-[#faf7f3] flex items-center justify-between">
+          <div className="p-4 sm:p-5 border-b border-[#f0e8df] bg-[#faf7f3] flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold font-display text-[#2e1810]">
+              <h2 className="text-lg sm:text-xl font-bold font-display text-[#2e1810]">
                 Votre Panier Teranga
               </h2>
               <span className="text-xs text-[#8c6b5d]">
@@ -71,7 +71,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             </div>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-white border border-[#e8ded1] flex items-center justify-center text-[#735144] hover:bg-[#f0e8df] transition-colors"
+              className="w-9 h-9 rounded-full bg-white border border-[#e8ded1] flex items-center justify-center text-[#735144] hover:bg-[#f0e8df] transition-colors cursor-pointer"
               aria-label="Fermer le panier"
             >
               <X className="w-4 h-4" />

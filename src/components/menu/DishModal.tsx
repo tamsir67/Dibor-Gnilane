@@ -82,13 +82,18 @@ export const DishModal: React.FC<DishModalProps> = ({ product, onClose, onConfir
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-[#e8ded1] animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-xs">
+      <div className="bg-white rounded-t-3xl sm:rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-[#e8ded1] animate-in fade-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200">
+        {/* Mobile Drag Handle */}
+        <div className="sm:hidden pt-3 pb-1 flex justify-center bg-[#faf7f3]">
+          <div className="w-10 h-1 bg-[#d6cbbf] rounded-full" />
+        </div>
+
         {/* Header */}
-        <div className="relative p-6 pb-4 border-b border-[#f0e8df] bg-[#faf7f3]">
+        <div className="relative p-5 sm:p-6 pb-4 border-b border-[#f0e8df] bg-[#faf7f3]">
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white border border-[#e8ded1] flex items-center justify-center text-[#735144] hover:bg-[#f0e8df] transition-colors"
+            className="absolute top-4 sm:top-5 right-4 sm:right-5 w-8 h-8 rounded-full bg-white border border-[#e8ded1] flex items-center justify-center text-[#735144] hover:bg-[#f0e8df] transition-colors cursor-pointer"
             aria-label="Fermer"
           >
             <X className="w-4 h-4" />
@@ -105,17 +110,17 @@ export const DishModal: React.FC<DishModalProps> = ({ product, onClose, onConfir
                 </>
               )}
             </div>
-            <h3 className="text-2xl font-bold font-display text-[#2e1810]">
+            <h3 className="text-xl sm:text-2xl font-bold font-display text-[#2e1810]">
               {product.name}
             </h3>
-            <p className="text-sm text-[#6b4c40] mt-1.5 leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#6b4c40] mt-1 leading-relaxed">
               {product.desc}
             </p>
           </div>
         </div>
 
         {/* Options Body */}
-        <div className="p-6 space-y-5 max-h-[60vh] overflow-y-auto">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1">
           {/* Variant choice */}
           {product.choice && product.choice.length > 0 && (
             <div>

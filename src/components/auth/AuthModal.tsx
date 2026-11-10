@@ -78,26 +78,31 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-      <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-[#e8ded1] animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-xs">
+      <div className="bg-white rounded-t-3xl sm:rounded-3xl max-w-md w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-[#e8ded1] animate-in fade-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200">
+        {/* Mobile Grab Handle */}
+        <div className="sm:hidden pt-3 pb-1 flex justify-center bg-[#faf7f3]">
+          <div className="w-10 h-1 bg-[#d6cbbf] rounded-full" />
+        </div>
+
         {/* Header */}
-        <div className="p-6 pb-4 border-b border-[#f0e8df] bg-[#faf7f3] flex items-center justify-between">
+        <div className="p-4 sm:p-6 pb-3 sm:pb-4 border-b border-[#f0e8df] bg-[#faf7f3] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#2e1810] text-[#e3a72f] flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-[#2e1810] text-[#e3a72f] flex items-center justify-center font-bold shrink-0">
               <UserCheck className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-bold font-display text-[#2e1810]">
+              <h3 className="text-base sm:text-lg font-bold font-display text-[#2e1810]">
                 Espace Client Teranga
               </h3>
-              <p className="text-xs text-[#8c6b5d]">
+              <p className="text-[11px] sm:text-xs text-[#8c6b5d]">
                 Identifiez-vous pour commander et suivre vos repas
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white border border-[#e8ded1] flex items-center justify-center text-[#735144] hover:bg-[#f0e8df] transition-colors"
+            className="w-8 h-8 rounded-full bg-white border border-[#e8ded1] flex items-center justify-center text-[#735144] hover:bg-[#f0e8df] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
