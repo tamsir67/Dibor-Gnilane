@@ -3,6 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <script>
+      // Gracefully handle dev WebSocket / HMR disconnects in iframe environment
+      window.addEventListener('error', function(e) {
+        if (
+          e &&
+          (e.message?.includes('WebSocket') ||
+           e.message?.includes('websocket') ||
+           e.filename?.includes('@vite/client') ||
+           e.error?.message?.includes('WebSocket'))
+        ) {
+          e.preventDefault?.();
+          e.stopImmediatePropagation?.();
+          return true;
+        }
+      }, true);
+      window.addEventListener('unhandledrejection', function(e) {
+        if (
+          e &&
+          e.reason &&
+          (String(e.reason?.message || e.reason).includes('WebSocket') ||
+           String(e.reason?.message || e.reason).includes('websocket'))
+        ) {
+          e.preventDefault?.();
+          return true;
+        }
+      });
+    </script>
     <title>Dibor &amp; Gnilane Food</title>
     <meta name="description" content="Plateforme gastronomique sénégalaise : commande en ligne, paiement sécurisé, espace membre, gestion des créneaux et tableau de bord administrateur complet." />
     <meta property="og:title" content="Dibor &amp; Gnilane Food" />
