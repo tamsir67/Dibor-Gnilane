@@ -11,9 +11,15 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
-const DB_FILE = path.join(__dirname, 'data', 'db.json');
+// Dossier des données : DATA_DIR permet de pointer vers un disque persistant (Render Disk).
+const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), 'data');
+const DB_FILE = path.join(DATA_DIR, 'db.json');
+const DIST_DIR = path.join(process.cwd(), 'dist');
 
 app.use(express.json());
+
+// Vérification de santé utilisée par Render.
+app.get('/healthz', (_req: Request, res: Response) => { res.json({ ok: true }); });
 
 // In-Memory Data Store with JSON Persistence
 interface DatabaseSchema {
@@ -144,6 +150,10 @@ function initDatabase(): DatabaseSchema {
       const content = fs.readFileSync(DB_FILE, 'utf-8');
       const data = JSON.parse(content);
       if (data && data.users && data.products) {
+        // Anciennes adresses d'images (/src/assets/images/…) : introuvables une fois le site publié.
+        for (const p of data.products) {
+          if (typeof p.image === 'string') p.image = p.image.replace('/src/assets/images/', '/images/');
+        }
         return data;
       }
     } catch (e) {
@@ -569,7 +579,7 @@ app.post('/api/products', (req: Request, res: Response) => {
     name,
     desc: desc || '',
     price: parseInt(price, 10),
-    image: image || '/src/assets/images/hero_african_feast_1794320926518.jpg',
+    image: image || '/images/hero_african_feast_1794320926518.jpg',
     al: al || [],
     veg: !!veg,
     preco: !!preco,
@@ -1020,6 +1030,9 @@ app.patch('/api/config', (req: Request, res: Response) => {
   res.json({ success: true, config: db.config });
 });
 
+// Toute route /api inconnue répond en JSON (et non avec la page du site).
+app.use('/api', (_req: Request, res: Response) => { res.status(404).json({ error: 'Route API inconnue' }); });
+
 // Setup Vite middleware in dev or static files in production
 async function startServer() {
   const isProd = process.env.NODE_ENV === 'production';
@@ -1038,9 +1051,17 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    app.use(express.static(path.resolve(__dirname, 'dist')));
+    // Fichiers du site compilé. index.html et le service worker ne sont jamais mis en cache,
+    // pour que chaque nouvelle publication s'affiche immédiatement.
+    app.use(express.static(DIST_DIR, {
+      setHeaders: (res, filePath) => {
+        if (/(index\.html|sw\.js|manifest\.webmanifest)$/.test(filePath)) res.setHeader('Cache-Control', 'no-cache');
+        else if (filePath.includes(`${path.sep}assets${path.sep}`)) res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      },
+    }));
     app.get('*', (_req, res) => {
-      res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
+      res.setHeader('Cache-Control', 'no-cache');
+      res.sendFile(path.join(DIST_DIR, 'index.html'));
     });
   }
 

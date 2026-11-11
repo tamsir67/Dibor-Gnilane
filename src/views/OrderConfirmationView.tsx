@@ -49,7 +49,7 @@ export const OrderConfirmationView: React.FC<OrderConfirmationViewProps> = ({
             <div className="flex items-center justify-between text-xs text-[#8c6b5d] pb-2 border-b border-[#ebd7c5]">
               <div className="flex items-center gap-2">
                 <img
-                  src="/assets/aistudio/image_b012f474.png"
+                  src="/logo-embleme.png"
                   alt="Dibor & Gnilane"
                   className="w-6 h-6 object-contain rounded bg-white p-0.5"
                 />

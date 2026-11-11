@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { BrandLogo } from '../../assets/logo.tsx';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useCart } from '../../context/CartContext.tsx';
-import { ShoppingBag, UserCheck, Shield, ChefHat, Bike, ChevronDown, Sparkles, Utensils, Clock } from 'lucide-react';
+import { ShoppingBag, UserCheck, Shield, ChefHat, Bike, ChevronDown, Sparkles, Utensils, Clock, Users } from 'lucide-react';
 import { formatEuro } from '../../utils/format.ts';
 import { PWAInstallButton } from '../pwa/PWAInstallButton.tsx';
+import type { Role } from '../../types/index.ts';
 
 interface NavbarProps {
   currentTab: string;
@@ -13,306 +14,189 @@ interface NavbarProps {
   onOpenAuth: () => void;
 }
 
+/** Écran d'accueil de chaque profil. */
+export const ROLE_HOME: Record<Role, string> = { client: 'menu', admin: 'admin', cuisine: 'cuisine', livreur: 'livreur' };
+
+const ROLES: { role: Role; label: string; hint: string; icon: React.ReactNode; color: string }[] = [
+  { role: 'client', label: 'Espace Client', hint: 'Commander, fidélité, suivi', icon: <UserCheck className="w-4 h-4" />, color: 'text-amber-800 bg-amber-50 border-amber-200' },
+  { role: 'admin', label: 'Administration', hint: 'Plats, utilisateurs, statistiques', icon: <Shield className="w-4 h-4" />, color: 'text-red-800 bg-red-50 border-red-200' },
+  { role: 'cuisine', label: 'Écran Cuisine', hint: 'Préparation et allergènes', icon: <ChefHat className="w-4 h-4" />, color: 'text-orange-800 bg-orange-50 border-orange-200' },
+  { role: 'livreur', label: 'Livreur / Remise', hint: 'Code client et dérogation', icon: <Bike className="w-4 h-4" />, color: 'text-emerald-800 bg-emerald-50 border-emerald-200' },
+];
+
 export const Navbar: React.FC<NavbarProps> = ({ currentTab, onTabChange, onOpenCart, onOpenAuth }) => {
   const { currentUser, switchRole } = useAuth();
   const { cartCount, total } = useCart();
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
+  const [switchError, setSwitchError] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  const roleLabels: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-    client: { label: 'Espace Client', icon: <UserCheck className="w-3.5 h-3.5" />, color: 'text-amber-800 bg-amber-50 border-amber-200' },
-    admin: { label: 'Administration', icon: <Shield className="w-3.5 h-3.5" />, color: 'text-red-800 bg-red-50 border-red-200' },
-    cuisine: { label: 'Écran Cuisine', icon: <ChefHat className="w-3.5 h-3.5" />, color: 'text-orange-800 bg-orange-50 border-orange-200' },
-    livreur: { label: 'Livreur / Remise', icon: <Bike className="w-3.5 h-3.5" />, color: 'text-emerald-800 bg-emerald-50 border-emerald-200' }
+  const role: Role = currentUser?.role ?? 'client';
+  const current = ROLES.find((r) => r.role === role)!;
+
+  // Fermer le menu des profils en cliquant ailleurs ou avec Échap.
+  useEffect(() => {
+    if (!roleMenuOpen) return;
+    const onDown = (e: MouseEvent) => { if (!menuRef.current?.contains(e.target as Node)) setRoleMenuOpen(false); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setRoleMenuOpen(false); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
+  }, [roleMenuOpen]);
+
+  const activate = async (r: Role) => {
+    setRoleMenuOpen(false);
+    setSwitchError(null);
+    const ok = await switchRole(r);
+    if (ok) onTabChange(ROLE_HOME[r]);
+    else setSwitchError('Impossible de charger ce profil : le serveur ne répond pas.');
   };
 
-  const currentRoleInfo = roleLabels[currentUser?.role || 'client'];
+  const desktopLink = (tab: string, label: React.ReactNode, onClick?: () => void) => (
+    <button
+      onClick={onClick ?? (() => onTabChange(tab))}
+      className={`hover:text-[#d4652a] transition-colors whitespace-nowrap pb-1 border-b-2 flex items-center gap-1.5 ${
+        currentTab === tab ? 'border-[#d4652a] text-[#d4652a]' : 'border-transparent'
+      }`}
+    >
+      {label}
+    </button>
+  );
+
+  // Le 5e bouton de la barre mobile mène à l'écran du profil actif (ou au traiteur pour un client).
+  const staffTab = role === 'client' ? null : ROLES.find((r) => r.role === role)!;
+  const mobileItems: { tab: string; label: string; icon: React.ReactNode; onClick?: () => void }[] = [
+    { tab: 'menu', label: 'Carte', icon: <Utensils className="w-4 h-4" /> },
+    { tab: 'tracking', label: 'Suivi', icon: <Bike className="w-4 h-4" /> },
+    { tab: 'scolaire', label: 'Scolaire', icon: <Clock className="w-4 h-4" /> },
+    { tab: 'member', label: 'Compte', icon: <UserCheck className="w-4 h-4" />, onClick: currentUser ? undefined : onOpenAuth },
+    staffTab
+      ? { tab: ROLE_HOME[role], label: staffTab.role === 'admin' ? 'Admin' : staffTab.role === 'cuisine' ? 'Cuisine' : 'Livreur', icon: staffTab.icon }
+      : { tab: 'catering', label: 'Traiteur', icon: <Users className="w-4 h-4" /> },
+  ];
 
   return (
-    <header className="sticky top-0 z-40 bg-[#faf7f3]/95 backdrop-blur-md border-b border-[#e8ded1] transition-all">
-      {/* Top Banner Notice for Quality & Teranga Experience */}
-      <div className="bg-[#2e1810] text-[#f7ece1] text-xs py-1.5 px-3 sm:px-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
-          <div className="flex items-center gap-2 truncate">
-            <span className="inline-block w-2 h-2 rounded-full bg-[#e3a72f] shrink-0"></span>
-            <span className="font-medium text-[#e3a72f] truncate">Fast-Food &amp; Traiteur Sénégalais</span>
-            <span className="text-[#c8b7a6] hidden md:inline">· 2G avenue des Étangs, La Celle-Saint-Cloud</span>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0 text-[11px] text-[#decbc0]">
-            <button
-              onClick={() => onTabChange('tracking')}
-              className="text-[#e3a72f] hover:underline flex items-center gap-1 font-semibold cursor-pointer shrink-0"
-            >
-              <Bike className="w-3 h-3" />
-              <span>Suivi direct</span>
-            </button>
-            <span className="hidden sm:inline">·</span>
-            <span className="text-[#ebd7c8] hidden sm:inline">100% Sécurisé</span>
-          </div>
+    <header className="sticky top-0 z-40 bg-[#faf7f3]/95 backdrop-blur-md border-b border-[#e8ded1]">
+      {/* Bandeau d'information, une seule ligne */}
+      <div className="bg-[#2e1810] text-[#f7ece1] text-[11px] leading-none">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-7 flex items-center justify-between gap-3">
+          <p className="flex items-center gap-2 min-w-0">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#e3a72f] shrink-0" />
+            <span className="font-semibold text-[#e3a72f] truncate">Fast-food &amp; traiteur sénégalais</span>
+            <span className="text-[#c8b7a6] hidden md:inline truncate">· 2G avenue des Étangs, La Celle-Saint-Cloud</span>
+          </p>
+          <button onClick={() => onTabChange('tracking')} className="text-[#e3a72f] hover:underline flex items-center gap-1 font-semibold shrink-0">
+            <Bike className="w-3 h-3" /> Suivi direct
+          </button>
         </div>
       </div>
 
-      {/* Main Top Bar Contract: 3 zones separated by gap */}
+      {/* Barre principale : marque · navigation (grand écran) · actions */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-3 sm:gap-8 h-16 sm:h-20">
-          {/* Zone 1: Single element brand wordmark with responsive scaling */}
-          <button
-            onClick={() => onTabChange('menu')}
-            className="flex items-center gap-2 sm:gap-3.5 text-left focus:outline-none group shrink min-w-0"
-          >
-            <BrandLogo className="w-10 h-10 sm:w-14 sm:h-14 transition-transform group-hover:scale-105 shadow-xs shrink-0" />
-            <div className="truncate">
-              <span className="text-base sm:text-2xl font-bold font-display tracking-tight text-[#2e1810] block leading-none truncate">
+        <div className="flex items-center gap-3 lg:gap-6 h-14 sm:h-16">
+          <button onClick={() => onTabChange('menu')} className="flex items-center gap-2.5 text-left shrink-0 min-w-0" aria-label="Accueil Dibor & Gnilane">
+            <BrandLogo className="w-10 h-10 sm:w-11 sm:h-11" />
+            <span className="hidden min-[400px]:block leading-none">
+              <span className="block font-display font-bold text-[15px] sm:text-lg text-[#2e1810] whitespace-nowrap">
                 DIBOR <span className="text-[#d4652a]">&amp;</span> GNILANE
               </span>
-              <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-[#8c6b5d] block mt-0.5 sm:mt-1 truncate">
-                Gastronomie Sénégalaise
-              </span>
-            </div>
+              <span className="block text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.18em] text-[#8c6b5d] mt-1">Food</span>
+            </span>
           </button>
 
-
-          {/* Zone 2: Single-line clean navigation links */}
-          <nav className="hidden lg:flex items-center gap-6 text-sm font-semibold text-[#5c3e34]">
-            <button
-              onClick={() => onTabChange('menu')}
-              className={`hover:text-[#d4652a] transition-colors whitespace-nowrap shrink-0 pb-1 border-b-2 ${
-                currentTab === 'menu' ? 'border-[#d4652a] text-[#d4652a]' : 'border-transparent'
-              }`}
-            >
-              La Carte
-            </button>
-            <button
-              onClick={() => {
-                onTabChange('menu');
-                setTimeout(() => {
-                  const el = document.getElementById('quick-dropdown-order');
-                  el?.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-              }}
-              className="hover:text-[#d4652a] transition-colors whitespace-nowrap shrink-0 pb-1 border-b-2 border-transparent flex items-center gap-1 text-[#d4652a]"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-[#e3a72f]" />
-              <span>Commande Liste Déroulante</span>
-            </button>
-            <button
-              onClick={() => onTabChange('scolaire')}
-              className={`hover:text-[#d4652a] transition-colors whitespace-nowrap shrink-0 pb-1 border-b-2 ${
-                currentTab === 'scolaire' ? 'border-[#d4652a] text-[#d4652a]' : 'border-transparent'
-              }`}
-            >
-              Pause Scolaire
-            </button>
-            <button
-              onClick={() => onTabChange('tracking')}
-              className={`hover:text-[#d4652a] transition-colors whitespace-nowrap shrink-0 pb-1 border-b-2 flex items-center gap-1.5 ${
-                currentTab === 'tracking' ? 'border-[#d4652a] text-[#d4652a]' : 'border-transparent'
-              }`}
-            >
-              <Bike className="w-3.5 h-3.5 text-[#1f6b42]" />
-              <span>Suivi Livraison</span>
-            </button>
-            <button
-              onClick={() => onTabChange('catering')}
-              className={`hover:text-[#d4652a] transition-colors whitespace-nowrap shrink-0 pb-1 border-b-2 ${
-                currentTab === 'catering' ? 'border-[#d4652a] text-[#d4652a]' : 'border-transparent'
-              }`}
-            >
-              Traiteur 20+ Pers.
-            </button>
+          <nav aria-label="Navigation principale" className="hidden xl:flex items-center gap-4 text-sm font-semibold text-[#5c3e34] min-w-0">
+            {desktopLink('menu', 'La carte')}
+            {desktopLink('quick', <><Sparkles className="w-3.5 h-3.5 text-[#e3a72f]" />Commande rapide</>, () => {
+              onTabChange('menu');
+              setTimeout(() => document.getElementById('quick-dropdown-order')?.scrollIntoView({ behavior: 'smooth' }), 120);
+            })}
+            {desktopLink('scolaire', 'Pause scolaire')}
+            {desktopLink('tracking', <><Bike className="w-3.5 h-3.5 text-[#1f6b42]" />Suivi</>)}
+            {desktopLink('catering', 'Traiteur 20+')}
           </nav>
 
-          {/* Zone 3: PWA Install + Customer Identification + Role Switcher + Shopping Bag */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-            {/* PWA Install Button (Android 1-click & iOS Safari prompt) */}
+          <div className="flex items-center gap-1.5 sm:gap-2 ml-auto shrink-0">
             <PWAInstallButton variant="nav" />
 
-            {/* Customer Identification Button */}
             <button
-              onClick={onOpenAuth}
-              className="flex items-center justify-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-xl border border-[#e8ded1] bg-white hover:bg-[#faf7f3] text-xs font-semibold text-[#2e1810] shadow-2xs transition-all active:scale-95 cursor-pointer min-h-[38px]"
-              title="S'identifier ou créer un compte client"
+              onClick={currentUser ? () => onTabChange('member') : onOpenAuth}
+              className="flex items-center gap-1.5 h-10 px-2.5 rounded-xl border border-[#e8ded1] bg-white hover:bg-[#faf7f3] text-xs font-semibold text-[#2e1810]"
+              title={currentUser ? 'Mon espace membre' : "S'identifier ou créer un compte"}
             >
-              <UserCheck className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-[#d4652a] shrink-0" />
-              <div className="text-left hidden sm:block">
-                <span className="block leading-tight text-[11px] font-bold">
-                  {currentUser ? currentUser.name.split(' ')[0] : "S'identifier"}
-                </span>
-                <span className="block text-[10px] text-[#8c6b5d] leading-none">
-                  {currentUser ? `${currentUser.loyaltyPoints} pts Teranga` : 'Mon compte'}
-                </span>
-              </div>
+              <UserCheck className="w-4 h-4 text-[#d4652a] shrink-0" />
+              <span className="hidden lg:block text-left leading-tight">
+                <span className="block text-[11px] font-bold max-w-[110px] truncate">{currentUser ? currentUser.name.split(' ')[0] : "S'identifier"}</span>
+                <span className="block text-[10px] text-[#8c6b5d]">{currentUser ? `${currentUser.loyaltyPoints} pts Teranga` : 'Mon compte'}</span>
+              </span>
             </button>
 
-            {/* Quick Role Switcher for seamless testing */}
-            <div className="relative">
+            <div className="relative" ref={menuRef}>
               <button
-                onClick={() => setRoleMenuOpen(!roleMenuOpen)}
-                className={`flex items-center justify-center gap-1 p-2 sm:px-2.5 sm:py-1.5 rounded-xl border text-xs font-semibold shadow-xs transition-colors cursor-pointer min-h-[38px] ${currentRoleInfo.color}`}
-                title="Changer de vue ou de rôle utilisateur pour tester l'application"
+                onClick={() => setRoleMenuOpen((o) => !o)}
+                aria-expanded={roleMenuOpen}
+                aria-haspopup="menu"
+                className={`flex items-center gap-1 h-10 px-2.5 rounded-xl border text-xs font-semibold ${current.color}`}
+                title="Changer de profil"
               >
-                {currentRoleInfo.icon}
-                <span className="hidden md:inline">{currentRoleInfo.label}</span>
-                <ChevronDown className="w-3 h-3 opacity-70 hidden sm:inline" />
+                {current.icon}
+                <span className="hidden lg:inline whitespace-nowrap">{current.label}</span>
+                <ChevronDown className="w-3 h-3 opacity-70" />
               </button>
-
               {roleMenuOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-[#e8ded1] py-2 z-50">
-                  <div className="px-3 py-1.5 text-[11px] font-bold text-[#8c6b5d] uppercase border-b border-[#f0e8df]">
-                    Changer d’espace / rôle
-                  </div>
-                  <button
-                    onClick={() => {
-                      switchRole('client');
-                      onTabChange('menu');
-                      setRoleMenuOpen(false);
-                    }}
-                    className="w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-[#faf7f3]"
-                  >
-                    <div className="flex items-center gap-2">
-                      <UserCheck className="w-4 h-4 text-amber-700" />
-                      <div>
-                        <p className="font-semibold text-[#2e1810]">Espace Client</p>
-                        <p className="text-[11px] text-[#8c6b5d]">Commander, fidélité, suivi</p>
-                      </div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => {
-                      onTabChange('tracking');
-                      setRoleMenuOpen(false);
-                    }}
-                    className="w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-[#faf7f3]"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Bike className="w-4 h-4 text-emerald-700" />
-                      <div>
-                        <p className="font-semibold text-[#2e1810]">Suivi Livraison en Direct</p>
-                        <p className="text-[11px] text-[#8c6b5d]">Localisation, étape &amp; code</p>
-                      </div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => {
-                      switchRole('admin');
-                      onTabChange('admin');
-                      setRoleMenuOpen(false);
-                    }}
-                    className="w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-[#faf7f3]"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4 text-red-700" />
-                      <div>
-                        <p className="font-semibold text-[#2e1810]">Tableau de Bord Admin</p>
-                        <p className="text-[11px] text-[#8c6b5d]">CRUD Plats, Utilisateurs, Stats</p>
-                      </div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => {
-                      switchRole('cuisine');
-                      onTabChange('cuisine');
-                      setRoleMenuOpen(false);
-                    }}
-                    className="w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-[#faf7f3]"
-                  >
-                    <div className="flex items-center gap-2">
-                      <ChefHat className="w-4 h-4 text-orange-700" />
-                      <div>
-                        <p className="font-semibold text-[#2e1810]">Écran Cuisine (KDS)</p>
-                        <p className="text-[11px] text-[#8c6b5d]">Préparation &amp; allergènes</p>
-                      </div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => {
-                      switchRole('livreur');
-                      onTabChange('livreur');
-                      setRoleMenuOpen(false);
-                    }}
-                    className="w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-[#faf7f3]"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Bike className="w-4 h-4 text-emerald-700" />
-                      <div>
-                        <p className="font-semibold text-[#2e1810]">Remise &amp; Livraison</p>
-                        <p className="text-[11px] text-[#8c6b5d]">Code client &amp; dérogation</p>
-                      </div>
-                    </div>
-                  </button>
+                <div role="menu" className="absolute right-0 mt-2 w-64 max-w-[calc(100vw-24px)] bg-white rounded-xl shadow-xl border border-[#e8ded1] py-2 z-50">
+                  <p className="px-3 py-1.5 text-[11px] font-bold text-[#8c6b5d] uppercase border-b border-[#f0e8df]">Changer de profil</p>
+                  {ROLES.map((r) => (
+                    <button
+                      key={r.role}
+                      role="menuitem"
+                      onClick={() => activate(r.role)}
+                      className={`w-full text-left px-3 py-2.5 text-xs flex items-center gap-2.5 hover:bg-[#faf7f3] ${r.role === role ? 'bg-[#faf7f3]' : ''}`}
+                    >
+                      <span className={`w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 ${r.color}`}>{r.icon}</span>
+                      <span className="min-w-0">
+                        <span className="block font-semibold text-[#2e1810]">{r.label}{r.role === role && ' · actif'}</span>
+                        <span className="block text-[11px] text-[#8c6b5d]">{r.hint}</span>
+                      </span>
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
 
-            {/* Shopping Bag CTA */}
             <button
               onClick={onOpenCart}
-              className="relative flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#2e1810] text-[#f7ece1] hover:bg-[#432317] active:scale-95 transition-all shadow-sm"
+              className="relative flex items-center gap-2 h-10 px-3 rounded-xl bg-[#2e1810] text-[#f7ece1] hover:bg-[#432317] shadow-sm"
               aria-label="Voir le panier"
             >
               <ShoppingBag className="w-4 h-4 text-[#e3a72f]" />
-              <span className="text-xs font-bold tabular-nums">
-                {cartCount > 0 ? formatEuro(total) : 'Panier'}
-              </span>
+              <span className="hidden sm:inline text-xs font-bold tabular-nums">{cartCount > 0 ? formatEuro(total) : 'Panier'}</span>
               {cartCount > 0 && (
-                <span className="w-5 h-5 rounded-full bg-[#d4652a] text-white text-[11px] font-extrabold flex items-center justify-center tabular-nums">
-                  {cartCount}
-                </span>
+                <span className="min-w-5 h-5 px-1 rounded-full bg-[#d4652a] text-white text-[11px] font-extrabold flex items-center justify-center tabular-nums">{cartCount}</span>
               )}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Touch-First Navigation Bar (min 44px hitboxes for thumb reach) */}
-      <nav aria-label="Navigation mobile" className="lg:hidden border-t border-[#ede2d6] bg-[#faf7f3]/95 backdrop-blur-md px-2 py-1 grid grid-cols-5 gap-1 text-[11px] font-bold text-[#735144]">
-        <button
-          onClick={() => onTabChange('menu')}
-          className={`min-h-[44px] flex flex-col items-center justify-center rounded-xl transition-all cursor-pointer ${
-            currentTab === 'menu' ? 'bg-[#2e1810] text-white shadow-xs' : 'hover:bg-[#f0e8df]'
-          }`}
-        >
-          <Utensils className="w-4 h-4 mb-0.5" />
-          <span>Carte</span>
-        </button>
-        <button
-          onClick={() => onTabChange('tracking')}
-          className={`min-h-[44px] flex flex-col items-center justify-center rounded-xl transition-all cursor-pointer ${
-            currentTab === 'tracking' ? 'bg-[#1f6b42] text-white shadow-xs' : 'hover:bg-[#f0e8df]'
-          }`}
-        >
-          <Bike className="w-4 h-4 mb-0.5" />
-          <span>Suivi</span>
-        </button>
-        <button
-          onClick={() => onTabChange('scolaire')}
-          className={`min-h-[44px] flex flex-col items-center justify-center rounded-xl transition-all cursor-pointer ${
-            currentTab === 'scolaire' ? 'bg-[#2e1810] text-white shadow-xs' : 'hover:bg-[#f0e8df]'
-          }`}
-        >
-          <Clock className="w-4 h-4 mb-0.5" />
-          <span>Scolaire</span>
-        </button>
-        <button
-          onClick={onOpenAuth}
-          className={`min-h-[44px] flex flex-col items-center justify-center rounded-xl transition-all cursor-pointer ${
-            currentTab === 'member' ? 'bg-[#2e1810] text-white shadow-xs' : 'hover:bg-[#f0e8df] text-[#d4652a]'
-          }`}
-        >
-          <UserCheck className="w-4 h-4 mb-0.5" />
-          <span>Compte</span>
-        </button>
-        <button
-          onClick={() => onTabChange(currentUser?.role === 'admin' ? 'admin' : 'catering')}
-          className={`min-h-[44px] flex flex-col items-center justify-center rounded-xl transition-all cursor-pointer ${
-            currentTab === (currentUser?.role === 'admin' ? 'admin' : 'catering') ? 'bg-[#b8462e] text-white shadow-xs' : 'hover:bg-[#f0e8df]'
-          }`}
-        >
-          <Shield className="w-4 h-4 mb-0.5" />
-          <span>{currentUser?.role === 'admin' ? 'Admin' : 'Traiteur'}</span>
-        </button>
+      {switchError && (
+        <p role="alert" className="bg-red-50 text-red-800 text-xs text-center py-1.5 px-3 border-t border-red-200">{switchError}</p>
+      )}
+
+      {/* Barre d'onglets tactile (téléphone, tablette et petits écrans) */}
+      <nav aria-label="Navigation mobile" className="xl:hidden border-t border-[#ede2d6] px-2 py-1 grid grid-cols-5 gap-1 max-w-3xl mx-auto text-[11px] font-bold text-[#735144]">
+        {mobileItems.map((it) => (
+          <button
+            key={it.label}
+            onClick={it.onClick ?? (() => onTabChange(it.tab))}
+            className={`min-h-[44px] flex flex-col items-center justify-center gap-0.5 rounded-xl transition-colors ${
+              currentTab === it.tab ? 'bg-[#2e1810] text-white' : 'hover:bg-[#f0e8df]'
+            }`}
+          >
+            {it.icon}
+            <span className="truncate max-w-full">{it.label}</span>
+          </button>
+        ))}
       </nav>
     </header>
   );
 };
-
-

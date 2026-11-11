@@ -201,12 +201,12 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
     <>
       <button
         onClick={handleInstallClick}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#e3a72f]/20 hover:bg-[#e3a72f]/30 border border-[#e3a72f]/40 text-[#7a490d] text-xs font-bold shadow-2xs transition-all active:scale-95 cursor-pointer ${className}`}
+        className={`flex items-center gap-1.5 h-10 px-2.5 rounded-xl bg-[#e3a72f]/20 hover:bg-[#e3a72f]/30 border border-[#e3a72f]/40 text-[#7a490d] text-xs font-bold shadow-2xs transition-all active:scale-95 cursor-pointer ${className}`}
         title="Installer l'application sur smartphone Android ou iPhone"
+        aria-label="Installer l'application"
       >
-        <Download className="w-3.5 h-3.5 text-[#d4652a]" />
-        <span className="hidden sm:inline">Installer l'App</span>
-        <span className="sm:hidden">App</span>
+        <Download className="w-4 h-4 text-[#d4652a]" />
+        <span className="hidden 2xl:inline whitespace-nowrap">Installer l'App</span>
       </button>
       {renderModal()}
     </>

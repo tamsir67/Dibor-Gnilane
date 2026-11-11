@@ -1,50 +1,39 @@
 import React from 'react';
 
-export const OFFICIAL_LOGO_PATH = '/assets/aistudio/image_b012f474.png';
+/** Emblème (bol fumant) : lisible même en petit, pour la barre de menu et les icônes. */
+export const LOGO_EMBLEM_PATH = '/logo-embleme.png';
+/** Logo complet avec le nom : pour les grands formats (pied de page, écrans d'accueil). */
+export const LOGO_FULL_PATH = '/logo-complet.png';
+export const OFFICIAL_LOGO_PATH = LOGO_FULL_PATH;
 
 export function BrandLogo({
-  className = 'w-14 h-14 sm:w-16 sm:h-16',
+  className = 'w-12 h-12',
   variant = 'emblem'
 }: {
   className?: string;
   variant?: 'emblem' | 'full';
 }) {
-  if (variant === 'full') {
-    return (
-      <div className={`relative overflow-hidden flex items-center justify-center ${className}`}>
-        <img
-          src={OFFICIAL_LOGO_PATH}
-          alt="Dibor & Gnilane Food"
-          className="w-full h-full object-contain filter drop-shadow-xs"
-          loading="eager"
-        />
-      </div>
-    );
-  }
-
   return (
-    <div
-      className={`relative overflow-hidden rounded-2xl bg-white shadow-sm flex items-center justify-center p-1.5 border border-[#e8ded1] shrink-0 transition-all ${className}`}
+    <span
+      className={`relative overflow-hidden rounded-xl bg-white flex items-center justify-center border border-[#e8ded1] shrink-0 ${className}`}
     >
       <img
-        src={OFFICIAL_LOGO_PATH}
+        src={variant === 'full' ? LOGO_FULL_PATH : LOGO_EMBLEM_PATH}
         alt="Logo Dibor & Gnilane Food"
-        className="w-full h-full object-contain filter contrast-105"
+        width={256}
+        height={256}
+        className="w-full h-full object-contain"
         loading="eager"
+        decoding="async"
       />
-    </div>
+    </span>
   );
 }
 
 export function BrandFullLogo({ className = 'h-16 sm:h-20 w-auto' }: { className?: string }) {
   return (
-    <div className={`flex items-center justify-center ${className}`}>
-      <img
-        src={OFFICIAL_LOGO_PATH}
-        alt="Dibor & Gnilane Food"
-        className="h-full w-auto object-contain max-h-full"
-        loading="eager"
-      />
-    </div>
+    <span className={`flex items-center justify-center ${className}`}>
+      <img src={LOGO_FULL_PATH} alt="Dibor & Gnilane Food" className="h-full w-auto object-contain max-h-full" loading="eager" />
+    </span>
   );
 }

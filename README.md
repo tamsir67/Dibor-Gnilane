@@ -8,6 +8,29 @@
 
 ---
 
+## 🚀 Publier sur Render
+
+Le dépôt contient un fichier `render.yaml` prêt à l'emploi.
+
+1. Sur Render : **New + → Blueprint**, puis choisir ce dépôt GitHub. Render lit `render.yaml` et crée un **Web Service** Node (et non un « Static Site », qui ne fait pas tourner l'API : les profils Admin, Cuisine et Livreur resteraient vides).
+2. Réglages appliqués automatiquement :
+   - Build : `npm install --include=dev && npm run build` (site + serveur compilé dans `dist-server/`)
+   - Démarrage : `npm start`
+   - Vérification de santé : `/healthz`
+   - Données (`db.json`) sur un disque persistant monté dans `/var/data` (variable `DATA_DIR`).
+3. Le disque persistant demande l'offre **Starter**. En offre gratuite, retirez le bloc `disk` de `render.yaml` : le site fonctionne, mais les commandes et comptes créés sont effacés à chaque redéploiement.
+
+Après une nouvelle publication, l'application installée sur téléphone se met à jour d'elle-même au prochain chargement.
+
+### Tester en local comme sur Render
+```bash
+npm install
+npm run build
+npm start            # http://localhost:3000
+```
+
+---
+
 ## 📱 1. PWA & Compatibilité Mobile (Android & iPhone iOS)
 
 L'application est conçue selon les standards **Progressive Web App (PWA)** les plus récents pour offrir une expérience identique à une application native téléchargée sur l'App Store ou le Google Play Store.

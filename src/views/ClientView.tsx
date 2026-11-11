@@ -200,18 +200,19 @@ export const ClientView: React.FC<ClientViewProps> = ({
       <section className="relative bg-[#2e1810] text-[#faf7f3] overflow-hidden">
         <div className="absolute inset-0 opacity-35 mix-blend-overlay pointer-events-none">
           <img
-            src="/src/assets/images/hero_african_feast_1794320926518.jpg"
-            alt="Festin africain Dibor & Gnilane"
+            src="/images/hero_african_feast_1794320926518.jpg"
+            alt=""
+            aria-hidden="true"
             className="w-full h-full object-cover"
           />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-20">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-7 lg:py-9">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-3.5 bg-white/10 backdrop-blur-md px-3.5 sm:px-4 py-2 rounded-2xl border border-white/15 mb-4 shadow-sm">
+            <div className="hidden sm:inline-flex items-center gap-3 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-2xl border border-white/15 mb-3 shadow-sm max-w-full">
               <img
-                src="/assets/aistudio/image_b012f474.png"
+                src="/logo-embleme.png"
                 alt="Logo Dibor & Gnilane"
-                className="w-10 h-10 sm:w-13 sm:h-13 object-contain rounded-xl bg-white p-1 shadow-xs shrink-0"
+                className="w-9 h-9 object-contain rounded-lg bg-white p-0.5 shrink-0"
               />
               <div className="min-w-0">
                 <span className="text-xs font-black uppercase tracking-wider text-[#e3a72f] block leading-tight truncate">
@@ -222,16 +223,16 @@ export const ClientView: React.FC<ClientViewProps> = ({
                 </span>
               </div>
             </div>
-            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold font-display leading-[1.12] text-white tracking-tight text-balance">
-              Le goût de l’Afrique, <br />
+            <h1 className="text-[1.6rem] sm:text-3xl lg:text-4xl font-extrabold font-display leading-[1.1] text-white tracking-tight text-balance">
+              Le goût de l’Afrique,{' '}
               <span className="text-[#e3a72f]">livré à l’heure.</span>
             </h1>
-            <p className="mt-3 sm:mt-4 text-sm sm:text-base lg:text-lg text-[#deb8a0] leading-relaxed">
+            <p className="mt-2 text-sm sm:text-base text-[#deb8a0] leading-relaxed max-w-xl">
               Recettes ancestrales cuisinées chaque matin avec des ingrédients frais. Poulet mariné au citron vert, sauces arachides fondantes et beignets dorés.
             </p>
 
             {/* 3 Trust Markers */}
-            <div className="mt-6 sm:mt-8 flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-[#ebd7c8]">
+            <div className="mt-3 sm:mt-4 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-[#ebd7c8]">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#1f6b42]" />
                 <span className="font-semibold">Viandes 100% Halal</span>

@@ -15,7 +15,8 @@ export default defineConfig(() => {
           'apple-touch-icon.png',
           'pwa-192x192.png',
           'pwa-512x512.png',
-          'assets/aistudio/image_b012f474.png'
+          'logo-embleme.png',
+          'logo-complet.png'
         ],
         manifest: {
           id: '/',
@@ -51,6 +52,11 @@ export default defineConfig(() => {
           ]
         },
         workbox: {
+          // Nouvelle version active dès la publication, anciens caches supprimés.
+          clientsClaim: true,
+          skipWaiting: true,
+          cleanupOutdatedCaches: true,
+          navigateFallbackDenylist: [/^\/api\//, /^\/healthz/],
           globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,woff,woff2}'],
           runtimeCaching: [
             {
@@ -84,7 +90,7 @@ export default defineConfig(() => {
           ]
         },
         devOptions: {
-          enabled: true,
+          enabled: false,
           type: 'module'
         }
       })

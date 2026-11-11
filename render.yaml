@@ -1,0 +1,20 @@
+# Déploiement Render (Blueprint) : New + > Blueprint, puis choisir ce dépôt.
+services:
+  - type: web
+    name: dibor-gnilane-food
+    runtime: node
+    plan: starter
+    region: frankfurt
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATA_DIR
+        value: /var/data
+    # Disque persistant : commandes, comptes et carte sont conservés entre deux déploiements.
+    disk:
+      name: donnees
+      mountPath: /var/data
+      sizeGB: 1

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext.tsx';
 import { CartProvider, useCart } from './context/CartContext.tsx';
-import { Navbar } from './components/layout/Navbar.tsx';
+import { Navbar, ROLE_HOME } from './components/layout/Navbar.tsx';
 import { CartDrawer } from './components/cart/CartDrawer.tsx';
 import { ClientView } from './views/ClientView.tsx';
 import { CheckoutView } from './views/CheckoutView.tsx';
@@ -14,14 +14,70 @@ import { DeliveryTrackingView } from './views/DeliveryTrackingView.tsx';
 import { CateringView } from './views/CateringView.tsx';
 import { AuthModal } from './components/auth/AuthModal.tsx';
 import { OfflineIndicator } from './components/pwa/OfflineIndicator.tsx';
-import { Order } from './types/index.ts';
+import { Order, Role } from './types/index.ts';
 import { BrandLogo } from './assets/logo.tsx';
+
+const TABS = ['menu', 'scolaire', 'checkout', 'confirmation', 'tracking', 'member', 'admin', 'cuisine', 'livreur', 'catering'];
+/** Écrans réservés à un profil (l'administration peut tous les ouvrir). */
+const STAFF_SCREENS: Record<string, { role: Role; label: string }> = {
+  admin: { role: 'admin', label: 'Administration' },
+  cuisine: { role: 'cuisine', label: 'Cuisine' },
+  livreur: { role: 'livreur', label: 'Livreur / Remise' },
+};
+const tabFromHash = () => {
+  const h = window.location.hash.replace('#', '');
+  return TABS.includes(h) && h !== 'confirmation' ? h : 'menu';
+};
+
+function RoleGate({ screen, children }: { screen: string; children: React.ReactNode }) {
+  const { currentUser, switchRole, isLoading } = useAuth();
+  const need = STAFF_SCREENS[screen];
+  const [error, setError] = useState(false);
+  if (!need || currentUser?.role === need.role || currentUser?.role === 'admin') return <>{children}</>;
+  if (isLoading) return <p className="py-20 text-center text-sm text-[#8c6b5d]">Chargement du profil…</p>;
+  return (
+    <div className="max-w-md mx-auto my-12 mx-4 sm:mx-auto bg-white rounded-2xl border border-[#e8ded1] p-6 text-center space-y-3">
+      <h2 className="font-display text-xl font-bold text-[#2e1810]">Écran réservé au profil « {need.label} »</h2>
+      <p className="text-sm text-[#735144]">Vous êtes actuellement sur le profil {currentUser ? `de ${currentUser.name}` : 'visiteur'}.</p>
+      <button
+        onClick={async () => setError(!(await switchRole(need.role)))}
+        className="px-4 py-2.5 rounded-xl bg-[#2e1810] text-white text-sm font-bold"
+      >
+        Activer le profil {need.label}
+      </button>
+      {error && <p className="text-xs text-red-700">Impossible de charger ce profil : le serveur ne répond pas.</p>}
+    </div>
+  );
+}
 
 function MainApp() {
   const { currentUser } = useAuth();
   const { addToCart } = useCart();
 
-  const [currentTab, setCurrentTab] = useState<string>('menu');
+  // L'écran affiché est inscrit dans l'adresse (#admin, #cuisine…) : il reste le même après un rechargement.
+  const [currentTab, setTab] = useState<string>(tabFromHash);
+  const setCurrentTab = (tab: string) => {
+    setTab(tab);
+    if (tab !== 'confirmation' && window.location.hash !== '#' + tab) window.history.pushState(null, '', '#' + tab);
+  };
+  useEffect(() => {
+    const onHash = () => setTab(tabFromHash());
+    window.addEventListener('popstate', onHash);
+    window.addEventListener('hashchange', onHash);
+    return () => { window.removeEventListener('popstate', onHash); window.removeEventListener('hashchange', onHash); };
+  }, []);
+
+  // Quand un profil est activé, son écran s'affiche aussitôt.
+  const prevRole = useRef<Role | null | undefined>(undefined);
+  useEffect(() => {
+    const role = currentUser?.role ?? null;
+    if (prevRole.current === undefined) {
+      if (role && role !== 'client' && !window.location.hash) setCurrentTab(ROLE_HOME[role]);
+    } else if (role && role !== prevRole.current) {
+      setCurrentTab(ROLE_HOME[role]);
+    }
+    if (currentUser !== null || prevRole.current !== undefined) prevRole.current = role;
+  }, [currentUser?.role]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [trackingOrderId, setTrackingOrderId] = useState<string | undefined>(undefined);
@@ -120,6 +176,16 @@ function MainApp() {
           />
         )}
 
+        {currentTab === 'confirmation' && !confirmedOrder && (
+          <ClientView
+            onOpenCart={() => setIsCartOpen(true)}
+            onNavigateToCatering={() => setCurrentTab('catering')}
+            onNavigateToCheckout={() => setCurrentTab('checkout')}
+            onOpenAuth={() => setIsAuthOpen(true)}
+            onNavigateToTracking={handleNavigateToTracking}
+          />
+        )}
+
         {currentTab === 'confirmation' && confirmedOrder && (
           <OrderConfirmationView
             order={confirmedOrder}
@@ -149,11 +215,11 @@ function MainApp() {
           />
         )}
 
-        {currentTab === 'admin' && <AdminDashboardView />}
+        {currentTab === 'admin' && <RoleGate screen="admin"><AdminDashboardView /></RoleGate>}
 
-        {currentTab === 'cuisine' && <KitchenView />}
+        {currentTab === 'cuisine' && <RoleGate screen="cuisine"><KitchenView /></RoleGate>}
 
-        {currentTab === 'livreur' && <DeliveryView />}
+        {currentTab === 'livreur' && <RoleGate screen="livreur"><DeliveryView /></RoleGate>}
 
         {currentTab === 'catering' && (
           <CateringView onBackToMenu={() => setCurrentTab('menu')} />

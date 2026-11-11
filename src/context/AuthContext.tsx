@@ -9,7 +9,8 @@ interface AuthContextType {
   logout: () => void;
   register: (userData: { name: string; email: string; phone: string; street?: string; city?: string; zip?: string }) => Promise<User | null>;
   updateProfile: (data: Partial<User>) => Promise<boolean>;
-  switchRole: (role: Role) => void;
+  /** Active le profil demandé. Renvoie false si aucun compte de ce profil n'a pu être chargé. */
+  switchRole: (role: Role) => Promise<boolean>;
   refreshUsers: () => Promise<void>;
 }
 
@@ -20,21 +21,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchUsers = async () => {
+  // Le profil actif est mémorisé dans le navigateur : il reste le même après un rechargement de la page.
+  const STORAGE_KEY = 'dg-profil-actif';
+  const remember = (u: User | null) => {
     try {
-      const res = await fetch('/api/users');
-      if (res.ok) {
-        const data = await res.json();
-        setAllUsers(data.users || []);
-        // Set default user if none selected
-        if (!currentUser && data.users.length > 1) {
-          // Default to Marie Diop (client)
-          const defaultUser = data.users.find((u: User) => u.id === 'usr_client_1') || data.users[0];
-          setCurrentUser(defaultUser);
-        }
-      }
+      if (u) localStorage.setItem(STORAGE_KEY, u.id);
+      else localStorage.removeItem(STORAGE_KEY);
+    } catch { /* stockage indisponible (navigation privée) */ }
+  };
+  const selectUser = (u: User | null) => { setCurrentUser(u); remember(u); };
+
+  const fetchUsers = async (): Promise<User[]> => {
+    try {
+      const res = await fetch('/api/users', { headers: { accept: 'application/json' } });
+      const type = res.headers.get('content-type') || '';
+      if (!res.ok || !type.includes('application/json')) throw new Error(`API indisponible (${res.status})`);
+      const data = await res.json();
+      const users: User[] = data.users || [];
+      setAllUsers(users);
+      setCurrentUser((cur) => {
+        if (cur) return users.find((u) => u.id === cur.id) || cur;
+        let savedId: string | null = null;
+        try { savedId = localStorage.getItem(STORAGE_KEY); } catch { /* ignore */ }
+        return users.find((u) => u.id === savedId) || users.find((u) => u.id === 'usr_client_1') || users.find((u) => u.role === 'client') || null;
+      });
+      return users;
     } catch (e) {
-      console.error('Error fetching users:', e);
+      console.error('Chargement des utilisateurs impossible :', e);
+      return [];
     } finally {
       setIsLoading(false);
     }
@@ -53,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       if (res.ok) {
         const data = await res.json();
-        setCurrentUser(data.user);
+        selectUser(data.user);
         return true;
       }
       return false;
@@ -64,7 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    setCurrentUser(null);
+    selectUser(null);
   };
 
   const register = async (userData: {
@@ -83,7 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       if (res.ok) {
         const data = await res.json();
-        setCurrentUser(data.user);
+        selectUser(data.user);
         await fetchUsers();
         return data.user;
       }
@@ -118,11 +132,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const switchRole = (role: Role) => {
-    const userForRole = allUsers.find(u => u.role === role);
-    if (userForRole) {
-      setCurrentUser(userForRole);
-    }
+  const switchRole = async (role: Role): Promise<boolean> => {
+    if (currentUser?.role === role) return true;
+    // Si la liste n'est pas encore chargée (démarrage à froid du serveur), on la recharge avant de changer.
+    const users = allUsers.length ? allUsers : await fetchUsers();
+    const userForRole = users.find((u) => u.role === role && u.status !== 'suspendu');
+    if (!userForRole) return false;
+    selectUser(userForRole);
+    return true;
   };
 
   return (
@@ -136,7 +153,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         register,
         updateProfile,
         switchRole,
-        refreshUsers: fetchUsers
+        refreshUsers: async () => { await fetchUsers(); }
       }}
     >
       {children}

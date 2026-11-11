@@ -404,7 +404,7 @@ export const AdminDashboardView: React.FC = () => {
           <div>
             <div className="flex items-center gap-2.5">
               <img
-                src="/assets/aistudio/image_b012f474.png"
+                src="/logo-embleme.png"
                 alt="Logo Dibor & Gnilane"
                 className="w-9 h-9 object-contain rounded-xl bg-white p-1 border border-[#e8ded1] shadow-xs"
               />
